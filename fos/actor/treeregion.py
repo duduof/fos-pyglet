@@ -1,7 +1,14 @@
 import gletools
 import numpy as np
 
-from fos.lib.pyglet.gl import *
+#from fos.lib.pyglet.gl import *
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+from OpenGL.GL.ARB.geometry_shader4 import *
+from OpenGL.GL.EXT.geometry_shader4 import *
+from OpenGL.arrays.vbo import *
 
 from fos import Actor
 from fos.shader import Shader, get_vary_line_width_shader, get_propagate_shader
@@ -93,27 +100,32 @@ class TreeRegion(Actor):
 
         # VBO related
         self.vertex_vbo = GLuint(0)
-        glGenBuffers(1, self.vertex_vbo)
+        self.vertex_vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER_ARB, self.vertex_vbo)
-        glBufferData(GL_ARRAY_BUFFER_ARB, 4 * self.vertices.size, self.vertices_ptr, GL_STATIC_DRAW)
+        print self.vertices, self.vertices_ptr
+        self.vertices_vbo2 = VBO( self.vertices, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER_ARB, 4 * self.vertices.size, self.vertices_vbo2.data, GL_STATIC_DRAW)
 
+        self.vertices_vbo2.bind()
         # /* Specify that our coordinate data is going into attribute index 0, and contains three floats per vertex */
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0)
+        # glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0)
 
         # for indices
         self.indices_vbo = GLuint(0)
-        glGenBuffers(1, self.indices_vbo)
+        self.indices_vbo = glGenBuffers(1)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.indices_vbo)
         # uint32 has 4 bytes
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * self.indices_nr, self.indices_ptr, GL_STATIC_DRAW)
+        self.indices_vbo2 = VBO( self.indices, GL_STATIC_DRAW)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * self.indices_nr, self.indices_vbo2, GL_STATIC_DRAW)
 
         # for colors
         self.colors_vbo = GLuint(0)
-        glGenBuffers(1, self.colors_vbo)
+        self.colors_vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.colors_vbo)
-
-        glBufferData(GL_ARRAY_BUFFER, 4 * self.colors.size, self.colors_ptr, GL_STATIC_DRAW)
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0)
+        self.colors_vbo2 = VBO( self.colors, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, 4 * self.colors.size, self.colors_vbo2, GL_STATIC_DRAW)
+        # glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0)
+        self.colors_vbo2.bind()
 
         self.shader = get_propagate_shader()
 

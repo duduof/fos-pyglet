@@ -11,7 +11,13 @@ from ctypes import (
     POINTER
 )
 
-from fos.lib.pyglet.gl import *
+#from fos.lib.pyglet.gl import *
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+from OpenGL.GL.ARB.geometry_shader4 import *
+from OpenGL.GL.EXT.geometry_shader4 import *
 
 class Shader:
     # vert, frag and geom take arrays of source strings
@@ -42,8 +48,8 @@ class Shader:
 
         # maximum 2d texture
         myint = GLint(0)
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, myint)
-        self.max_tex = myint.value
+        myint = glGetIntegerv(GL_MAX_TEXTURE_SIZE)
+        self.max_tex = myint
 
         # needs to be after linking
         self.width_sampler = glGetUniformLocation(self.handle, "widthSampler" )
@@ -61,7 +67,8 @@ class Shader:
         # convert the source strings into a ctypes pointer-to-char array, and upload them
         # this is deep, dark, dangerous black magick - don't try stuff like this at home!
         src = (c_char_p * count)(*strings)
-        glShaderSource(shader, count, cast(pointer(src), POINTER(POINTER(c_char))), None)
+        #glShaderSource(shader, count, cast(pointer(src), POINTER(POINTER(c_char))), None)
+        glShaderSource(shader, strings)
 
         # compile the shader
         glCompileShader(shader)
@@ -75,10 +82,12 @@ class Shader:
         # create a buffer for the log
         buffer = create_string_buffer(temp.value)
         # retrieve the log text
-        glGetShaderInfoLog(shader, temp, None, buffer)
+        # glGetShaderInfoLog(shader, temp, None, buffer)
+        buff = glGetShaderInfoLog(shader)
+        print buff
         
         # print the log to the console
-        print buffer.value
+        # print buffer.value
 
         # all is well, so attach the shader to the program
         glAttachShader(self.handle, shader)
@@ -95,7 +104,8 @@ class Shader:
         # convert the source strings into a ctypes pointer-to-char array, and upload them
         # this is deep, dark, dangerous black magick - don't try stuff like this at home!
         src = (c_char_p * count)(*strings)
-        glShaderSource(shader, count, cast(pointer(src), POINTER(POINTER(c_char))), None)
+        #glShaderSource(shader, count, cast(pointer(src), POINTER(POINTER(c_char))), None)
+        glShaderSource(shader, strings)
 
         # compile the shader
         glCompileShader(shader)
@@ -110,16 +120,18 @@ class Shader:
         # create a buffer for the log
         buffer = create_string_buffer(temp.value)
         # retrieve the log text
-        glGetShaderInfoLog(shader, temp, None, buffer)
+        #glGetShaderInfoLog(shader, temp, None, buffer)
+        buff = glGetShaderInfoLog(shader)
+        print buff
         # print the log to the console
 
         print("Geometry shader compiled.")
 
         # And define the input and output of the geometry shader, point and triangle strip in this case. Four is how many the vertices the shader will create.
 
-        glProgramParameteriEXT(self.handle, GL_GEOMETRY_INPUT_TYPE_EXT, input_type)
-        glProgramParameteriEXT(self.handle, GL_GEOMETRY_OUTPUT_TYPE_EXT, output_type)
-        glProgramParameteriEXT(self.handle, GL_GEOMETRY_VERTICES_OUT_EXT, vertices_out)
+        glProgramParameteriEXT(self.handle, GL_GEOMETRY_INPUT_TYPE_ARB, input_type)
+        glProgramParameteriEXT(self.handle, GL_GEOMETRY_OUTPUT_TYPE_ARB, output_type)
+        glProgramParameteriEXT(self.handle, GL_GEOMETRY_VERTICES_OUT_ARB, vertices_out)
 
         print buffer.value
 
@@ -140,9 +152,11 @@ class Shader:
         # create a buffer for the log
         buffer = create_string_buffer(temp.value)
         # retrieve the log text
-        glGetProgramInfoLog(self.handle, temp, None, buffer)
+        # glGetProgramInfoLog(self.handle, temp, None, buffer)
+        #buff = glGetShaderInfoLog(temp)
+        
         # print the log to the console
-        print buffer.value
+        # print buffer.value
 
         # print the log
         if temp:
