@@ -12,14 +12,14 @@ from OpenGL.GLUT import *
 # load the vary-line-width-shader
 def get_vary_line_width_shader():
     return Shader( [get_shader_code('propagatevertex130.vert')],
-                   [get_shader_code('propagatecolor130.frag')],
+                   [get_shader_code('allRed.frag')],
                    [get_shader_code('lineextrusion130.geom'), GL_LINES, GL_TRIANGLE_STRIP, 6]
                   )
 
 # load the vary-line-width-shader
 def get_simple_shader():
     return Shader( [get_shader_code('propagatevertex130b.vert')],
-                   [get_shader_code('propagatecolor130.frag')]
+                   [get_shader_code('allRed.frag')]
                   )
 
 # load the vary-line-width-shader

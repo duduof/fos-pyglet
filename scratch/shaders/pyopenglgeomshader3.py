@@ -1,16 +1,40 @@
 #!/usr/bin/python
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
-from OpenGL.GL.ARB.geometry_shader4 import *
-from OpenGL.GL.EXT.geometry_shader4 import *
 
 import Image
 import numpy
 import numpy.linalg as linalg
 import random
 from math import sin, cos
+import numpy as np
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+from OpenGL.GL.ARB.geometry_shader4 import *
+from OpenGL.GL.EXT.geometry_shader4 import *
+
+from fos.actor.treeregion import TreeRegion
+
+# sample tree data
+# ####
+vert = np.array( [ [0,0,0],
+                   [5,5,0],
+                   [5,10,0],
+                   [10,5,0]], dtype = np.float32 )
+
+conn = np.array( [ 0, 1, 1, 2, 1, 3 ], dtype = np.uint32 )
+
+cols = np.array( [ [0, 0, 1, 1],
+                   [1, 0, 1, 1],
+                   [0, 0, 1, 0.5] ] , dtype = np.float32 )
+
+vert_width = np.array( [1, 5, 5, 1, 5, 1], dtype = np.float32 )
+
+#ax = Axes(scale=100)
+act = TreeRegion(vertices = vert, connectivity = conn, colors = cols, radius = vert_width)
+
+
 
 shader = None
 
@@ -21,7 +45,12 @@ def update(*args):
     glutPostRedisplay()
 
 def display():
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    
+
+
+
 
     t = glutGet(GLUT_ELAPSED_TIME)
     rot = t % (10 * 1000)
@@ -46,7 +75,10 @@ def display():
                 glVertexAttrib1f(7, random.uniform(0.0, 1.0))
                 glVertexAttrib3f(0, x, y, 0)
     glEnd()
+
     glUseProgram(0)
+
+    act.draw()
 
     glutSwapBuffers()
 

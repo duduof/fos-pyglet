@@ -7,7 +7,13 @@
 
 # also see http://sourceforge.net/projects/libmymath/files/libmymath%20v1.3.1/
 
-from fos.lib.pyglet.gl import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+from OpenGL.GL.ARB.geometry_shader4 import *
+from OpenGL.GL.EXT.geometry_shader4 import *
+from OpenGL.arrays.vbo import *
+
 import numpy as np
 from ctypes import *
 

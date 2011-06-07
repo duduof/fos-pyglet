@@ -54,8 +54,8 @@ void unProjectCoord(vec3 winCoord, float w, ivec4 viewport, out vec4 clipCoord)
 
 void main()
 {
-    float extrude1 = vWidth[0];
-    float extrude2 = vWidth[1];
+    float extrude1 = 5; //vWidth[0];
+    float extrude2 = 5; // vWidth[1];
 
     vec3 winCoord0;
     vec3 winCoord1;

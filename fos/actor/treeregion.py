@@ -9,9 +9,10 @@ from OpenGL.GLUT import *
 from OpenGL.GL.ARB.geometry_shader4 import *
 from OpenGL.GL.EXT.geometry_shader4 import *
 from OpenGL.arrays.vbo import *
+from OpenGL.arrays import ArrayDatatype as ADT
 
 from fos import Actor
-from fos.shader import Shader, get_vary_line_width_shader, get_propagate_shader
+from fos.shader import Shader, get_vary_line_width_shader, get_propagate_shader, get_simple_shader
 
 from fos.shader.vsml import vsml
 
@@ -59,7 +60,7 @@ class TreeRegion(Actor):
         self.vertices = self.vertices[self.connectivity,:]
 
         # we have a simplified connectivity now
-        self.connectivity = np.array( range(len(self.vertices)), dtype = np.uint32 )
+        self.connectivity = np.array( range(len(self.vertices)), dtype = np.int32 )
 
         # this coloring section is for per/vertex color
         if colors is None:
@@ -87,7 +88,7 @@ class TreeRegion(Actor):
         print "number of indices rows", self.connectivity.shape
 
         # create indicies, seems to be slow with nested loops
-        self.indices = self.connectivity
+        self.indices = self.connectivity.astype( np.float32 )
         self.indices_ptr = self.indices.ctypes.data
         self.indices_nr = self.indices.size
 
@@ -114,6 +115,7 @@ class TreeRegion(Actor):
         self.indices_vbo = GLuint(0)
         self.indices_vbo = glGenBuffers(1)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.indices_vbo)
+
         # uint32 has 4 bytes
         self.indices_vbo2 = VBO( self.indices, GL_STATIC_DRAW)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * self.indices_nr, self.indices_vbo2, GL_STATIC_DRAW)
@@ -127,7 +129,7 @@ class TreeRegion(Actor):
         # glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0)
         self.colors_vbo2.bind()
 
-        self.shader = get_propagate_shader()
+        self.shader = get_vary_line_width_shader()
 
         # check if we allow to enable texture for radius information
         self.tex_size = int( np.sqrt( self.mytex.size ) ) + 1
@@ -174,39 +176,75 @@ class TreeRegion(Actor):
 
     def draw_vbo(self):
 
-
-
+        
         # bind the shader
         self.shader.bind()
 
+
+        
         self.shader.uniform_matrixf( 'projMatrix', vsml.get_projection())
         self.shader.uniform_matrixf( 'modelviewMatrix', vsml.get_modelview())
-
         self.shader.uniformi( 'textureWidth', self.tex_size)
-
         glUniform1i(self.shader.width_sampler, 0)
 
-        if self.use_tex:
-            glActiveTexture(GL_TEXTURE0)
-            glBindTexture(GL_TEXTURE_2D, self.tex_unit)
+        #if self.use_tex:
+        #    glActiveTexture(GL_TEXTURE0)
+        #    glBindTexture(GL_TEXTURE_2D, self.tex_unit)
 
-        glBindBuffer(GL_ARRAY_BUFFER_ARB, self.vertex_vbo)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0)
+        #import pdb; pdb.set_trace()
+        indices = np.array(
+            range(len(self.vertices)),
+            'i',
+        )
+        print "dtype", self.indices.dtype
+        glEnableClientState(GL_VERTEX_ARRAY)
+        try:
+            self.vertices_vbo2.bind()
+            try:
+                glVertexPointerf( self.vertices_vbo2 )
+                
+# http://stackoverflow.com/questions/6124636/gldrawarrays-vs-gldrawelements/6232336#6232336
+                # XXXX: it does not work
+                
+                #glVertexPointer(0, GL_FLOAT, 0, None)
+                #self.indices_vbo2.bind()
 
-        glBindBuffer(GL_ARRAY_BUFFER_ARB, self.colors_vbo)
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0)
+                print "len vertices", self.vertices.shape, indices
+                # GL_INDEX_ARRAY
+                #import pdb; pdb.set_trace()
+                glDrawElements(GL_LINES, len(indices) ,GL_UNSIGNED_INT,ADT.voidDataPointer(indices)  )
+
+            finally:
+               self.vertices_vbo2.unbind()
+               glDisableClientState(GL_VERTEX_ARRAY)
+
+        finally:
+            glUseProgram( 0 )
+
+
+
+
+        #glBindBuffer(GL_ARRAY_BUFFER_ARB, self.vertex_vbo2)
+
+        #glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0)
+
+        #glBindBuffer(GL_ARRAY_BUFFER_ARB, self.colors_vbo2)
+        #glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0)
+        #self.colors_vbo2.bind()
 
         # bind the indices buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.indices_vbo)
+        #glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.indices_vbo2)
 
-        glDrawElements(self.mode,self.indices_nr,self.type,0)
+        #self.indices_vbo2.bind()
+
+        #glDrawElements(self.mode,self.indices_nr,self.type,0)
 
         # unbind the shader
-        self.shader.unbind()
+        #self.shader.unbind()
 
     def draw(self):
 
-        self.draw_all()
+        self.draw_vbo()
 
     def draw_all(self):
 #        import pdb; pdb.set_trace()
