@@ -40,15 +40,6 @@ class Shader:
         # attempt to link the program
         self.link()
 
-        # maximum 2d texture
-        myint = GLint(0)
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, myint)
-        self.max_tex = myint.value
-
-        # needs to be after linking
-        self.width_sampler = glGetUniformLocation(self.handle, "widthSampler" )
-        self.tex_width = glGetUniformLocation(self.handle, "textureWidth" )
-
     def createShader(self, strings, type):
         count = len(strings)
         # if we have no source code, ignore this shader
