@@ -91,14 +91,19 @@ class TreeRegion(Actor):
         self.mode = GL_LINES
         self.type = GL_UNSIGNED_INT
 
+        self.shader = get_vary_line_width_shader()
+
+        self.aPosition_loc = self.shader.retrieveAttribLocation( "aPosition" )
+        self.aColor_loc = self.shader.retrieveAttribLocation( "aColor" )
+
+
         # VBO related
+        glVertexAttribPointer(self.aPosition_loc, 3, GL_FLOAT, GL_FALSE, 0, 0)
         self.vertex_vbo = GLuint(0)
         glGenBuffers(1, self.vertex_vbo)
         glBindBuffer(GL_ARRAY_BUFFER_ARB, self.vertex_vbo)
         glBufferData(GL_ARRAY_BUFFER_ARB, 4 * self.vertices.size, self.vertices_ptr, GL_STATIC_DRAW)
-
-        # /* Specify that our coordinate data is going into attribute index 0, and contains three floats per vertex */
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0)
+        glDisableVertexAttribArray(self.aPosition_loc)
 
         # for indices
         self.indices_vbo = GLuint(0)
@@ -108,15 +113,12 @@ class TreeRegion(Actor):
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * self.indices_nr, self.indices_ptr, GL_STATIC_DRAW)
 
         # for colors
+        glVertexAttribPointer(self.aColor_loc, 4, GL_FLOAT, GL_FALSE, 0, 0)
         self.colors_vbo = GLuint(0)
         glGenBuffers(1, self.colors_vbo)
         glBindBuffer(GL_ARRAY_BUFFER, self.colors_vbo)
-
         glBufferData(GL_ARRAY_BUFFER, 4 * self.colors.size, self.colors_ptr, GL_STATIC_DRAW)
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0)
-
-        self.shader = get_vary_line_width_shader()
-
+        glDisableVertexAttribArray(self.aColor_loc)
 
         # check if we allow to enable texture for radius information
         self.tex_size = int( np.sqrt( self.mytex.size ) ) + 1
@@ -167,6 +169,8 @@ class TreeRegion(Actor):
 
     def draw_vbo(self):
 
+        # http://www.opengl.org/wiki/GlVertexAttribPointer
+
         # bind the shader
         self.shader.bind()
 
@@ -180,19 +184,22 @@ class TreeRegion(Actor):
             glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, self.tex_unit)
 
-        glEnableVertexAttribArray(0)
+        glEnableVertexAttribArray(self.aPosition_loc)
         glBindBuffer(GL_ARRAY_BUFFER_ARB, self.vertex_vbo)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0)
+        glVertexAttribPointer(self.aPosition_loc, 3, GL_FLOAT, GL_FALSE, 0, 0)
 
-        glEnableVertexAttribArray(1)
+        glEnableVertexAttribArray(self.aColor_loc)
         glBindBuffer(GL_ARRAY_BUFFER_ARB, self.colors_vbo)
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0)
+        glVertexAttribPointer(self.aColor_loc, 4, GL_FLOAT, GL_FALSE, 0, 0)
 
         # bind the indices buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.indices_vbo)
 
         glDrawElements(self.mode,self.indices_nr,self.type,0)
 
+        glDisableVertexAttribArray(self.aPosition_loc)
+        glDisableVertexAttribArray(self.aColor_loc)
+        
         # unbind the shader
         self.shader.unbind()
 

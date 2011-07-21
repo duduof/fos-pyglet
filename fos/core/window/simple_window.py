@@ -59,7 +59,7 @@ class SimpleWindow(fos.lib.pyglet.window.Window):
         self.update_dt = 1.0/60
 
         if bgcolor == None:
-            self.bgcolor = color.grey
+            self.bgcolor = color.black
         else:
             self.bgcolor = bgcolor
 

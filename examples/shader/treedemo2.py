@@ -34,7 +34,7 @@ ac=[]
 s=5
 # tune it up
 # this is very inefficient, because it copies the position arrays
-for i in range(10):
+for i in range(1):
     pos2 = pos.copy()
     pos2[:,0] = pos2[:,0] + (randn()-0.5)*s
     pos2[:,1] = pos2[:,1] + (randn()-0.5)*s

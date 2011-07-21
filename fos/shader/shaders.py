@@ -31,14 +31,13 @@ class Shader:
             # the geometry shader will be the same, once pyglet supports the extension
             self.createGeometryShader( [geom[0]] , GL_GEOMETRY_SHADER_EXT, geom[1], geom[2], geom[3])
 
-        #/* Bind attribute index 0 (coordinates) to in_Position and attribute index 1 (color) to in_Color */
-        #/* Attribute locations must be setup before calling glLinkProgram. */
-
-        glBindAttribLocation(self.handle, 0, "aPosition")
-        glBindAttribLocation(self.handle, 1, "aColor")
-
         # attempt to link the program
         self.link()
+
+    def retrieveAttribLocation(self, name):
+        """ Call only after linking
+        """
+        return glGetAttribLocation(self.handle, name)
 
     def createShader(self, strings, type):
         count = len(strings)
