@@ -22,7 +22,7 @@ class World():
 #        simple_camera = DefaultCamera()
         self.cl.cameras.append(simple_camera)
         
-        #self._render_lock = RLock()
+        self._render_lock = RLock()
         
     def add(self, obj, update_camera = True):
         if isinstance(obj, Actor):
