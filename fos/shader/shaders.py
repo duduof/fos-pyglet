@@ -144,8 +144,8 @@ class Shader:
         # bind the program
         glUseProgram(self.handle)
 
-        glEnableVertexAttribArray(0)
-        glEnableVertexAttribArray(1)
+        #glEnableVertexAttribArray(0)
+        #glEnableVertexAttribArray(1)
 #        glEnable(GL_TEXTURE_1D)
 
     def unbind(self):
