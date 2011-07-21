@@ -24,21 +24,16 @@ except pyglet.window.NoSuchConfigException:
 # ####
 vert = np.array( [ [0,0,0],
                    [5,5,0],
-                   [5,10,0],
                    [10,5,0]], dtype = np.float32 )
 
-conn = np.array( [ 0, 1, 1, 2, 1, 3 ], dtype = np.uint32 )
+conn = np.array( [ 0, 1, 0, 2 ], dtype = np.uint32 )
 
-cols = np.array( [ [0, 0, 1, 1],
-                   [1, 0, 1, 1],
-                   [0, 0, 1, 0.5] ] , dtype = np.float32 )
+cols = np.array( [ [1, 1, 0, 0.5], [1, 0, 0, 1.0] ] , dtype = np.float32 )
 
-vert_width = np.array( [1, 5, 5, 1, 5, 1], dtype = np.float32 )
+vert_width = np.array( [5, 10, 3 ], dtype = np.float32 )
 
-ax = Axes(scale=100)
-act = TreeRegion(vertices = vert, connectivity = conn, radius = vert_width) #colors = cols,
+act = TreeRegion(vertices = vert, connectivity = conn, radius = vert_width,colors = cols)
 
-window.add_actor_to_world(ax)
 window.add_actor_to_world(act)
 
 fos.run()
